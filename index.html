@@ -1,0 +1,92 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Nanite by christopherdumas</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Nanite</h1>
+        <p class="header">A haskell-inspired language with Scheme macros. This language is as minimal as we can possebly get away with: Auto-curried true lambdas, booleans, conditions, strings, macros, and numbers. This language aims to be super productive for seasoned functional programmers, and blazingly fast and small.</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/christopherdumas/nanite/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/christopherdumas/nanite/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/christopherdumas/nanite">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/christopherdumas">christopherdumas</a></p>
+
+
+      </header>
+      <section>
+        <h1>
+<a id="nanite-functional-programming-language" class="anchor" href="#nanite-functional-programming-language" aria-hidden="true"><span class="octicon octicon-link"></span></a>Nanite Functional Programming Language</h1>
+
+<h2>
+<a id="haskell--javascript--scheme--nanite" class="anchor" href="#haskell--javascript--scheme--nanite" aria-hidden="true"><span class="octicon octicon-link"></span></a>Haskell + JavaScript + Scheme = Nanite!</h2>
+
+<p>Nanite is a functional programming language based on Haskell's syntax (minus segnificant whitespace), ideas of pure functions and auto currying. It also uses JavaScript's idea of dynamic typing, plus JavaScript's curly braces, and Scheme's macros and size.
+Here is how the language looks with it's standard library (Nanobit):</p>
+
+<pre><code>let my-fun (x y z) = {
+  x + y + z
+}
+
+let my-var = 124           ; Variables are functions under the hood, so we could keep the amount of up-front features down. In fact,
+let my-varfunc (x) = x + 1   ; the variable declaration is just a single-expression function!
+
+let my-bool = True         ; boolean true
+let my-bool2 = False       ; boolean false
+
+let my-num = 1             ; numbers
+let my-str = 'Sjfklsjlk'   ; strings
+let my-list = 1 , 2 , 3 , 4 ; Comma is just a macro that outputs this:
+; cons 1, (cons 2, (cons 3, (cons 4, nil)))
+; And since there are no variables, a lone identifier calls a function!!!
+my-var ; ==&gt; 124
+
+my-varfunc 1 ; ==&gt; 2
+
+my-fun 1, 2, 3 ; This is really passing in a list, which is destructured by the arg list!
+
+; Algebreic datatypes are just functions and macros too.....
+data Light = Red | Green | Yellow
+; Which transforms to:
+; let Light (mode) = {
+;   if eq(mode, 'Red') {
+;     return Red
+;   }
+;   if eq(mode, 'Green') {
+;     return Green
+;   }
+;   if eq(mode, 'Yellow') {
+;     return Yellow
+;   }
+; }
+;
+; let Red = 'Red'
+; let Green = 'Green'
+; let Yellow = 'Yellow'
+</code></pre>
+
+<p>This language is written using Lex, Bison, Rust, and LLVM. This is a compiled language, looking to see how fast it can feasibly get while retaining the easy-to-readness of the codebase. Any help or contributions are welcomed.</p>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
