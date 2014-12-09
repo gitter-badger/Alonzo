@@ -1,7 +1,7 @@
 # Nanite Functional Programming Language
 ## Haskell + JavaScript + Scheme = Nanite!
 Nanite is a functional programming language based on Haskell's syntax (minus segnificant whitespace), ideas of pure functions and auto currying. It also uses JavaScript's idea of dynamic typing, plus JavaScript's curly braces, and Scheme's macros and size.
-Here is how the language looks with it's standard library (Nanobit):
+Here is how the language looks with it's standard library:
 
     let my-fun (x, y, z) = {
       x + y + z
@@ -15,14 +15,15 @@ Here is how the language looks with it's standard library (Nanobit):
 
     let my-num = 1             ; numbers
     let my-str = 'Sjfklsjlk'   ; strings
-    let my-list = 1 : 2 : 3 : 4 ; Comma is just a macro that outputs this:
+    let my-list = 1 , 2 , 3 , 4 ; Comma is just a macro that outputs this:
     ; cons 1, (cons 2, (cons 3, (cons 4, nil)))
     ; And since there are no variables, a lone identifier calls a function!!!
     my-var ; ==> 124
 
     my-varfunc 1 ; ==> 2
 
-    my-fun 1, 2, 3
+    my-fun 1 , 2 , 3             ; Really just a list, which is destructured!
+    map let (e i) = { i .. ": " .. e }, (1 , 2 , 3 , 4) ; Lambdas!!
 
     ; Algebreic datatypes are just functions and macros too.....
     data Light = Red | Green | Yellow
@@ -42,3 +43,5 @@ Here is how the language looks with it's standard library (Nanobit):
     ; let Red = 'Red'
     ; let Green = 'Green'
     ; let Yellow = 'Yellow'
+
+Nanite is built mostly (and later on, fully) in itself, 

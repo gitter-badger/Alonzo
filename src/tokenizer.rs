@@ -1,22 +1,53 @@
+#![feature(macro_rules)]
 enum TokenType { StringVal, Operator, Name, Number, Nothing }
-struct Token<T> {
+struct Token <T> {
     token_type: TokenType,
     value: T,
-    from: int,
-    to: int
+    from: uint,
+    to: uint
+}
+trait TokenTrait {
+    fn value (&self) {
+        println!("Value method called!!!!! PANIC!!")
+    }
+}
+impl TokenTrait for Token<int> {}
+impl TokenTrait for Token<&'static str> {}
+fn has_char (c: Option<&char>) -> (bool, char) {
+    match c {
+        Some(c) => (true, *c),
+        None    => (false, ' ')
+    }
 }
 
-fn tokens_of(string: &str) -> [Token] { tokens("", "", string) }
-fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
-    let c: &str;                      // The current character.
-    let from: int;                   // The index of the start of the token.
-    let i = 0i;                  // The index of the current character.
-    let n: int;                      // The number value.
-    let q: &str;                      // The quote character.
-    let strval: &str;                    // The string value.
-    let length = string.len();
+fn tokens<T: TokenTrait>(prefix: &str, suffix: &str, strr: &str) -> Vec<T> {
+let mut successfull_get: bool = true;
+    macro_rules! get(
+        ($idx:expr, $thing:expr, $to:ident) => (
+            match $thing.get($idx) {
+                Some(c) => {
+                    successfull_get = true;
+                    $to = *c;
+                },
+                None    => successfull_get = false
+            }
+        );
+    )
 
-    let result: Vec<Token> = vec![];            // An array to hold the results.
+    let mut c: char;                      // The current character.
+    let mut from: uint;                   // The index of the start of the token.
+    let mut i = 0u;                  // The index of the current character.
+    let mut n: int;                      // The number value.
+    let mut q: &str;                      // The quote character.
+    let mut strval: String;                    // The string value.
+    let length = strr.len();  // Vectors have no set length!
+    let mut string: Vec<char> = vec![];  // You can't access a specific index into a string slice or string, so we have to convert ours to a vector! (0_0)
+    for c in strr.bytes() { // Iterate  over the bytes in the &str
+        string.push(c as char)  // Add that char to the vector named string
+    }
+
+
+    let mut result: Vec<T> = vec![];            // An array to hold the results.
     let make = |ttype: TokenType, value| {
         Token {
             token_type: ttype,
@@ -27,8 +58,8 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
     };
 
     // Begin tokenization. If the source string is empty, return nothing.
-    if !string {
-        return;
+    if string == "" {
+        return result
     }
 
     // If prefix and suffix strings are not provided, supply defaults.
@@ -42,24 +73,25 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
 
     // Loop through string text, one character at a time.
 
-    c = string.get(i);
-    while (c) {
+    get!(i, string, c);
+
+    while successfull_get {
         from = i;
 
         // Ignore whitespace.
 
-        if (c <= " ") {
+        if c <= ' ' {
             i += 1;
-            c = string.get(i);
+            get!(i, string, c);
             // name.
-        } else if (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") {
-            strval = c;
+        } else if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') {
+            strval = String::from_char(1, c);
             i += 1;
             loop {
-                c = string.get(i);
-                if (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") ||
-                    (c >= "0" && c <= "9") || c == "_" {
-                    strval += c;
+                get!(i, string, c);
+                if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
+                    (c >= '0' && c <= '9') || c == '_' {
+                    strval.push(c);
                     i += 1;
                 } else {
                     break;
@@ -70,63 +102,63 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
             // number.
 
             // A number cannot start with a decimal point. It must start with a digit,
-            // possibly "0".
+            // possibly '0'.
 
-        } else if c >= "0" && c <= "9" {
-            strval = c;
+        } else if c >= '0' && c <= '9' {
+            strval = String::from_char(1, c);
             i += 1;
 
             // Look for more digits.
 
             loop {
-                c = string.get(i);
-                if (c < "0" || c > "9") {
+                get!(i, string, c);
+                if c < '0' || c > '9' {
                     break;
                 }
                 i += 1;
-                strval += c;
+                strval.push(c);
             }
 
             // Look for a decimal fraction part.
 
-            if c == "." {
+            if c == '.' {
                 i += 1;
-                strval += c;
+                strval.push(c);
                 loop {
-                    c = string.get(i);
-                    if c < "0" || c > "9" {
+                    get!(i, string, c);
+                    if c < '0' || c > '9' {
                         break;
                     }
                     i += 1;
-                    strval += c;
+                    strval.push(c);
                 }
             }
 
             // Look for an exponent part.
 
-            if c == "e" || c == "E" {
+            if c == 'e' || c == 'E' {
                 i += 1;
-                strval += c;
-                c = string.get(i);
-                if c == "-" || c == "+" {
+                strval.push(c);
+                get!(i, string, c);
+                if c == '-' || c == '+' {
                     i += 1;
-                    strval += c;
-                    c = string.get(i);
+                    strval.push(c);
+                    get!(i, string, c);
                 }
-                if c < "0" || c > "9" {
+                if c < '0' || c > '9' {
                     make(TokenType::Number, strval).error("Bad exponent");
                 }
-                while (c >= "0" && c <= "9") || i == 0 {
+                while (c >= '0' && c <= '9') || i == 0 {
                     i += 1;
-                    strval += c;
-                    c = string.charAt(i);
+                    strval.push(c);
+                    get!(i, string, c);
                 }
             }
 
             // Make sure the next character is not a letter.
 
-            if c >= "a" && c <= "z" {
-                strval += c;
+            if c >= 'a' && c <= 'z' {
+                strval.push(c);
                 i += 1;
                 make(TokenType::Number, strval).error("Bad number");
             }
@@ -134,23 +166,19 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
             // Convert the string value to a number. If it is finite, then it is a good
             // token.
 
-            n = strval as int;
-            if (n.is_finite()) {
-                result.push(make(TokenType::Number, n));
-            } else {
-                make(TokenType::Number, strval).error("Bad number");
-            }
+            n = from_str(strval.as_slice()).unwrap();
+            result.push(make(TokenType::Number, n));
 
             // strvaling
 
-        } else if (c == "\"" || c == "'") {
-            strval = "";
-            q = c;
+        } else if c == '\"' || c == '\'' {
+            strval = "".to_string();
+            q = c.to_string().as_slice();
             i += 1;
             loop {
-                c = string.get(i);
-                if (c < " ") {
-                    make(TokenType::StringVal, strval).error(if c == "\n" || c == "\r" || c == "" {
+                get!(i, string, c);
+                if (c < ' ') {
+                    make(TokenType::StringVal, strval).error(if c == '\n' || c == '\r' {
                                                   "Unterminated string."
                                               } else {
                                                   "Control character in string."
@@ -159,28 +187,28 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
 
                 // Look for the closing quote.
 
-                if (c == q) {
+                if c == q {
                     break;
                 }
 
                 // Look for escapement.
 
-                if (c == "\\") {
+                if c == '\\' {
                     i += 1;
-                    if (i >= length) {
+                    if i >= length {
                         make(TokenType::StringVal, strval).error("Unterminated string");
                     }
-                    c = string.get(i);
+                    get!(i, string, c);
                     match c {
-                        "n" => (c = "\n"),
-                        "r" => (c = "\r"),
-                        "t" => (c = "\t"),
-                        "u" => {
+                        'n' => (c = '\n'),
+                        'r' => (c = '\r'),
+                        't' => (c = '\t'),
+                        'u' => {
                             if (i >= length) {
                                 make(TokenType::StringVal, strval).error("Unterminated string");
                             }
                             c = string.slice(i + 1, 4) as int;
-                            if (c.is_infinite() || c < 0) {
+                            if c < 0 {
                                 make(TokenType::StringVal, strval).error("Unterminated string");
                             }
                             c = String::from_char(1, c as char).as_slice();
@@ -188,20 +216,20 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
                         }
                     }
                 }
-                strval += c;
+                strval.push(c);
                 i += 1;
             }
             i += 1;
             result.push(make(TokenType::StringVal, strval));
-            c = string.get(i);
+            get!(i, string, c);
 
             // comment.
 
-        } else if (c == "/" && string[i + 1] == "/") {
+        } else if c == '/' && string[i + 1] == '/' {
             i += 1;
             loop {
-                c = string.get(i);
-                if (c == "\n" || c == "\r" || c == "") {
+                get!(i, string, c);
+                if c == '\n' || c == '\r' {
                     break;
                 }
                 i += 1;
@@ -210,14 +238,14 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
             // combining
 
         } else if (prefix.indexOf(c) >= 0) {
-            strval = c;
+            strval = String::from_char(1, c);
             i += 1;
             loop {
-                c = string.charAt(i);
-                if (i >= length || suffix.indexOf(c) < 0) {
+                get!(i, string, c);
+                if i >= length || suffix.indexOf(c) < 0 {
                     break;
                 }
-                strval += c;
+                strval.push(c);
                 i += 1;
             }
             result.push(make(TokenType::Operator, strval));
@@ -227,11 +255,11 @@ fn tokens (prefix: &str, suffix: &str, string: &str) -> [Token] {
         } else {
             i += 1;
             result.push(make(TokenType::Operator, c));
-            c = string.charAt(i);
+            get!(i, string, c);
         }
     }
-    return result;
+    return result
 }
 fn main () {
-    println!("{}", tokens_of("1 + 1"));
+    println!("{}", tokens("", "", "1 + 1"));
 }
