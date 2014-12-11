@@ -1,92 +1,179 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Nanite by christopherdumas</title>
+    <meta name="description" content="Alonzo : Alonzo is a super-mnimal language with syntax almost exactly the same as Lambda Calculus itself. Alonzo heavily uses macros for defining more syntax and structures in itself, since Lambdas, Varables, Strings, and Macros are the only built-ins.">
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Alonzo</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1 class="header">Nanite</h1>
-        <p class="header">A haskell-inspired language with Scheme macros. This language is as minimal as we can possebly get away with: Auto-curried true lambdas, booleans, conditions, strings, macros, and numbers. This language aims to be super productive for seasoned functional programmers, and blazingly fast and small.</p>
 
-        <ul>
-          <li class="download"><a class="buttons" href="https://github.com/christopherdumas/nanite/zipball/master">Download ZIP</a></li>
-          <li class="download"><a class="buttons" href="https://github.com/christopherdumas/nanite/tarball/master">Download TAR</a></li>
-          <li><a class="buttons github" href="https://github.com/christopherdumas/nanite">View On GitHub</a></li>
-        </ul>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/christopherdumas/Alonzo">View on GitHub</a>
 
-        <p class="header">This project is maintained by <a class="header name" href="https://github.com/christopherdumas">christopherdumas</a></p>
+          <h1 id="project_title">Alonzo</h1>
+          <h2 id="project_tagline">Alonzo is a super-mnimal language with syntax almost exactly the same as Lambda Calculus itself. Alonzo heavily uses macros for defining more syntax and structures in itself, since Lambdas, Varables, Strings, and Macros are the only built-ins.</h2>
 
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/christopherdumas/Alonzo/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/christopherdumas/Alonzo/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
 
-      </header>
-      <section>
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
         <h1>
-<a id="nanite-functional-programming-language" class="anchor" href="#nanite-functional-programming-language" aria-hidden="true"><span class="octicon octicon-link"></span></a>Nanite Functional Programming Language</h1>
+<a id="the-alonzo-language" class="anchor" href="#the-alonzo-language" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Alonzo Language</h1>
+
+<p>Alonzo is a language heavily based on Lambda Calculus' syntax, and minimalism. Alonzo also uses Haskell's idea of purity, although not quite to that extent. And because of Alonzo's use of Scheme-eschew style macros, very little cannot be implemented in the language itself.
+Alonzo does not aim to be Object-Oriented in any way, only supporting algebraic data types (for example, Haskell's Option type) and enumerations. Functions are values, and are proper lambdas. All functions are curried automatically, as in Haskell, except that missing arguments are represented as an underscore. There are no operators defined by the language, just functions, although in the standard library, infix macros are defined for operators.
+Lists are not built into the language, but instead are implemented in it. There are no loops of any kind, exept the usual map, filter, reject, each, etc. Recursion is highly recommended for tasks that require indefinite amounts of looping. Since there are no operators, there are no special characters that you cannot put in variable names. Even if you define
+an infix macro, it will be delimited by whitespace. Alonzo uses Scheme-like brace, paren, and curly brace inter polarity, but Alonzo has some best practices when using one or the other type of brace, to give it a more C-like feel, but otherwise is pretty much exactly the same as lambda calculus. Functions only ever take one argument, and return functions that take the other arguments.
+There are not to be any extensions to the original runtime after the language is finished. Any additional features <em>will</em> be added to the standard library as macros, always. The language is implemented in Rust for maximum portability. Any operating system should be able to use it.
+Alonzo compiles to LLVM, and is parsed by a Top Down Operator Precedence (Based on Douglas Crockford's article). There will never, in any reimplementation of the language be any other features than these in the language:</p>
+
+<ol>
+<li><a href="#functions">True Lambdas</a></li>
+<li><a href="#var">Variable Assignment</a></li>
+<li><a href="#strings">Strings</a></li>
+<li><a href="#macros">Macros</a></li>
+</ol>
+
+<p><strong>NOTE</strong>: Comments are a macro, and so are lists and data types and enumerations.</p>
+
+<p><strong>NOTE</strong>: There are tests for every single of these features in the <code>parser_tests.rs</code>, <code>tokenizer_tests.rs</code>, and <code>compiler_tests.rs</code>.</p>
 
 <h2>
-<a id="haskell--javascript--scheme--nanite" class="anchor" href="#haskell--javascript--scheme--nanite" aria-hidden="true"><span class="octicon octicon-link"></span></a>Haskell + JavaScript + Scheme = Nanite!</h2>
+<a id="-functions" class="anchor" href="#-functions" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+<a name="functions"></a> Functions</h2>
 
-<p>Nanite is a functional programming language based on Haskell's syntax (minus segnificant whitespace), ideas of pure functions and auto currying. It also uses JavaScript's idea of dynamic typing, plus JavaScript's curly braces, and Scheme's macros and size.
-Here is how the language looks with it's standard library (Nanobit):</p>
+<p>Lambdas are essential for any Turing-complete language, as lambda calculus can prove. The definition of a lambda is a function that has no name, but instead can be passed around as easily as a number or boolean. A lambda, when created, captures its surrounding environment in a closure.
+Alonzo has been heavily inspired by Lambda Calculus, as even professed by its name. The syntax we have chosen is very similar to the lambda calculus syntax, but slightly influenced by C to make it more readable to the average programmer.
+Here is an example of a normal lambda in Alonzo:</p>
 
-<pre><code>let my-fun (x y z) = {
-  x + y + z
-}
-
-let my-var = 124           ; Variables are functions under the hood, so we could keep the amount of up-front features down. In fact,
-let my-varfunc (x) = x + 1   ; the variable declaration is just a single-expression function!
-
-let my-bool = True         ; boolean true
-let my-bool2 = False       ; boolean false
-
-let my-num = 1             ; numbers
-let my-str = 'Sjfklsjlk'   ; strings
-let my-list = 1 , 2 , 3 , 4 ; Comma is just a macro that outputs this:
-; cons 1, (cons 2, (cons 3, (cons 4, nil)))
-; And since there are no variables, a lone identifier calls a function!!!
-my-var ; ==&gt; 124
-
-my-varfunc 1 ; ==&gt; 2
-
-my-fun 1, 2, 3 ; This is really passing in a list, which is destructured by the arg list!
-
-; Algebreic datatypes are just functions and macros too.....
-data Light = Red | Green | Yellow
-; Which transforms to:
-; let Light (mode) = {
-;   if eq(mode, 'Red') {
-;     return Red
-;   }
-;   if eq(mode, 'Green') {
-;     return Green
-;   }
-;   if eq(mode, 'Yellow') {
-;     return Yellow
-;   }
-; }
-;
-; let Red = 'Red'
-; let Green = 'Green'
-; let Yellow = 'Yellow'
+<pre><code>{λx . λy . λz .
+  xyz := +(x, y, z)
+  *(xyz, 9)
+}(1, 2, 3)
 </code></pre>
 
-<p>This language is written using Lex, Bison, Rust, and LLVM. This is a compiled language, looking to see how fast it can feasibly get while retaining the easy-to-readness of the codebase. Any help or contributions are welcomed.</p>
+<p>As you may have noticed, those λ characters require unicode. This is not necessary if your editor or environment is not supportive to that type of unicode programming, but it is recommended, because it makes much more clear your intentions to make a lambda similar to that of a lambda calculus one. Also note that functions are curried, as professed by the lambda syntax, just as in Lambda Calculus.
+Parenthesis and curly braces and square brackets are all completely equivalent, but to avoid a lispy feel, we mostly use curly braces to surround blocks, parentheses to call functions and wrap expressions, and square brackets to go around the list macro. This is so that users can use most of the visual clues they are used to.
+Here is the non-unicode version:</p>
+
+<pre><code>{\x . \y . \z .
+  xyz := +(x, y, z)
+  *(xyz, 9)
+}(1, 2, 3)
+</code></pre>
+
+<p>Here is an example of currying:</p>
+
+<pre><code>+1 := {λx . λy . λz .
+  +(x, y, z)
+}(1, _, _)
++4 := +1(4, _)
++9 := +4(9) ; =&gt; 14 (:
++3nums := {λx . λy . λz .
+  +(x, y, z)
+}
++3nums(1, 2, 3) ; =&gt; 6
+</code></pre>
+
+<p>Lambdas with no arguments are like this:</p>
+
+<pre><code>{λ_ . 1 + 1}
+</code></pre>
+
+<p>Functions are called with no arguments by using empty parens (<code>()</code>)</p>
+
+<h3>
+<a id="side-effects" class="anchor" href="#side-effects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Side-Effects</h3>
+
+<p>Side effects are not allowed in normal functions at all. All functions must return the same thing when given the same arguments as previously. This is similar to Haskell, except that instead of using monads, which I find very confusing and hard to understand for beginners, we use a sort of 1/2 monad:</p>
+
+<pre><code>main := {do .
+  println "HW"
+}
+</code></pre>
+
+<p>Side effects are only allowed in a do-block, and do blocks can only be assigned to the main variable, which is called immediately if it is there. The last return value of the program is otherwise used. Which brings me to one point: The last expression in a do-block or lambda is the return value, which is highly convenient for functional programming.</p>
+
+<h2>
+<a id="-variable-assignment" class="anchor" href="#-variable-assignment" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+<a name="var"></a> Variable Assignment</h2>
+
+<p>Variables are immutable, and all structures, such as arrays and datatypes are therefor immutable. Alonzo uses Lexical scoping with variables and functions.
+Variables are assigned like this:</p>
+
+<pre><code>set('foobar', 2)
+</code></pre>
+
+<p>but in the standard library a macro for assignment is defined to make it easier and clearer:</p>
+
+<pre><code>foobar := 2
+</code></pre>
+
+<p>The format is <code>&lt;identifier&gt; := &lt;expression&gt;</code> where an identifier is any sequence of characters, symbols, or numbers that is not already used. Variables can have numbers that come first, because numbers are defined inside the language anyway. All infix operators that you see are macros. So are lists, numbers, conditionals, and booleans.
+To make a contract of a type of a variable just use a special form of comment:</p>
+
+<pre><code>foobar::Int := 2
+</code></pre>
+
+<p>This special comment only comments one identifier, which it then associates with the identifier on the other side, and then it checks to make sure that the 2 is an Int. Since variables are immutable, this isn't really that much use, but for people who want it, it's there. (written as a macro).</p>
+
+<h2>
+<a id="-strings" class="anchor" href="#-strings" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+<a name="strings"></a> Strings</h2>
+
+<p>Strings are created between <code>"</code> or <code>'</code>. There is no string templating or concatenation or substitution or slice built in, but all that is possible inside the standard library, with macros. Strings can be indexed though.</p>
+
+<pre><code>get 0 , "Hello, World!"
+get 5 , 'Hello, World!'
+</code></pre>
+
+<h2>
+<a id="-macros" class="anchor" href="#-macros" aria-hidden="true"><span class="octicon octicon-link"></span></a>
+<a name="macros"></a> Macros</h2>
+
+<p>Macros are the central feature in Alonzo, because they are the reason that it is possible to write such a tiny language and yet get a readable, high-level functional language. Scheme has macros, but they are not obvious about their use, and not very easy to read their definition. So, I have decided to use the Rust or Sweet.JS style syntax for macros. Macros are going to be one of the most sophisticated features of this language.</p>
+
+<h1>
+<a id="faq" class="anchor" href="#faq" aria-hidden="true"><span class="octicon octicon-link"></span></a>FAQ</h1>
+
+<ol>
+<li><p><strong>How do I identify data types?</strong>
+Built-In datatypes can be identified by the <code>type</code> function, but user-defined types cannot.</p></li>
+<li><p><strong>Will Alonzo be able to load files in the future?</strong>
+File loading will probably not be implemented, because of the certain imperativeness and unsafeness that comes with that. In the future, they might be added though.</p></li>
+<li><p><strong>Why the Rust Programming Language vs. C or C++?</strong>
+Rust is a very modern, flexible, and functional programming language, with closures, lambdas, and many other good features, as well as direct bindings for LLVM, and A good package manager and fast benchmark speed. It is also very robust, and type-safe, as well as avoiding all the dangerous pitfalls of C. It is also as fast or faster then C. C++ is also far to strange, dangerous, imperative, and just plain impalpable.</p></li>
+<li><p><strong>Will Alonzo implement feature X in Y time?</strong>
+No. Not ever. Implement it yourself. We have macros, and a very flexible syntax. And, do you really need X??</p></li>
+<li><p><strong>How do I learn Alonzo?</strong>
+Since the majority of programmers aren't functional programmers, and this is a very hard-core functional language, as well as not being marketed very well, and being very small, you can either contact me, put up an issue, write a tutorial yourself, read the rust code, or read the standard library. The last option is recommended.</p></li>
+</ol>
       </section>
-      <footer>
-        <p><small>Hosted on <a href="http://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Alonzo maintained by <a href="https://github.com/christopherdumas">christopherdumas</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
-		
+
+    
+
   </body>
 </html>
