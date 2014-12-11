@@ -2,14 +2,20 @@
 enum TokenType { StringVal, Operator, Name, Number, Nothing }
 struct Token {
     token_type: TokenType,
-    string_value: &str,
-    number_value: int,
+    string_value: Option<&str>,
+    number_value: Option<int>,
     from: uint,
     to: uint
 }
 impl Token {
     fn value () -> (Option<int>, Option<&str>) {
-
+        match number_value {
+            n @ Some(_) => (n, None),
+            None => (None, match string_value {
+                s @ Some(_) => (None, s),
+                None => (None, None)
+            })
+        }
     }
 }
 
@@ -19,8 +25,11 @@ fn has_char (c: Option<&char>) -> (bool, char) {
         None    => (false, ' ')
     }
 }
+trait Val {
+    fn dummy () {}
+}
 
-fn tokens<T: TokenTrait>(prefix: &str, suffix: &str, strr: &str) -> Vec<T> {
+fn tokens(prefix: &str, suffix: &str, strr: &str) -> Vec<Token> {
 let mut successfull_get: bool = true;
     macro_rules! get(
         ($idx:expr, $thing:expr, $to:ident) => (
@@ -47,14 +56,11 @@ let mut successfull_get: bool = true;
     }
 
 
-    let mut result: Vec<T> = vec![];            // An array to hold the results.
+    let mut result: Vec<Token> = vec![];            // An array to hold the results.
     let make = |ttype: TokenType, value| {
-        Token {
-            token_type: ttype,
-            value: value,
-            from: from,
-            to: i
-        }
+        let number_value: int;
+        let string_value: &str;
+
     };
 
     // Begin tokenization. If the source string is empty, return nothing.
