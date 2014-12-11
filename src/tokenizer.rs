@@ -1,18 +1,18 @@
 #![feature(macro_rules)]
 enum TokenType { StringVal, Operator, Name, Number, Nothing }
-struct Token <T> {
+struct Token {
     token_type: TokenType,
-    value: T,
+    string_value: &str,
+    number_value: int,
     from: uint,
     to: uint
 }
-trait TokenTrait {
-    fn value (&self) {
-        println!("Value method called!!!!! PANIC!!")
+impl Token {
+    fn value () -> (Option<int>, Option<&str>) {
+
     }
 }
-impl TokenTrait for Token<int> {}
-impl TokenTrait for Token<&'static str> {}
+
 fn has_char (c: Option<&char>) -> (bool, char) {
     match c {
         Some(c) => (true, *c),

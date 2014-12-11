@@ -1,8 +1,5 @@
 [package]
 
-name = "nanite2"
+name = "Alonzo"
 version = "0.0.1"
 authors = ["christopherdumas <christopherdumas@me.com>"]
-
-[dependancies.rust-peg]
-git = "https://github.com/kevinmehall/rust-peg"
