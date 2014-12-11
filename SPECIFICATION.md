@@ -1,6 +1,6 @@
 The Alonzo Language Specification
 =================================
-Alonzo is a language loosely based on Haskell's syntax, immutability, and destructering in functions. Alonzo does have multiple dispatch built in, and because of its use of Scheme-eschew style macros, very little cannot be implemented in the language itself.
+Alonzo is a language heavily based on Lambda Calculus' syntax, and minimalism. Alonzo also uses Haskell's idea of purity, although not quite to that extent. And because of its use of Scheme-eschew style macros, very little cannot be implemented in the language itself.
 Alonzo does not aim to be Object-Oriented in any way, only supporting algebraic data types (for example, Haskell's Option type) and enumerations. Functions are values, and are proper lambdas. There are no variables, just shorthand function syntax that looks like variable assignment.
 Since there are no variables, to call a function with no arguments, just place it's name. All functions are curried automatically, as in Haskell. There are no operators defined by the language, just functions, although in the standard library, infix macros are defined for operators.
 Lists are not built into the language, but instead are implemented in it. There are no loops of any kind, exept the usual map, filter, reject, each, etc. Recursion is highly recommended for tasks that require indefinite amounts of looping. Since there are no operators, there are no special characters that you cannot put in variable names. Even if you defeine
