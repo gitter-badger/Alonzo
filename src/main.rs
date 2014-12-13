@@ -1,15 +1,22 @@
 #![feature(macro_rules)]
+#![feature(phase)]
+#[phase(plugin)]
+extern crate regex_macros;
+extern crate regex;
 extern crate getopts;
 use std::io::BufferedReader;
 use std::io::File;
 use std::io;
 use std::os;
+use regex::Regex;
 
 mod tokenizer;
 
 fn main () {
     let args: Vec<String> = os::args();
     let mut code = "".to_string();
+    let eol = regex!(r"$");
+    let newline = regex!(r"\n");
 
     if args.len() > 1 {
         let file = args[1].clone();
@@ -17,11 +24,15 @@ fn main () {
         let path = Path::new(file);
         let mut file = BufferedReader::new(File::open(&path));
         for line in file.lines() {
-            code.push_str((line.unwrap()).as_slice());
+            code.push_str(
+                newline.replace_all(eol.replace_all(line.unwrap().as_slice(), " ").as_slice(), " \n").as_slice()
+            );
         }
     } else {
         for line in io::stdin().lock().lines() {
-            code.push_str((line.unwrap()).as_slice());
+            code.push_str(
+                newline.replace_all(eol.replace_all(line.unwrap().as_slice(), " ").as_slice(), " \n").as_slice()
+            );
         }
     }
 
