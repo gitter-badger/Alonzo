@@ -1,30 +1,34 @@
-use std::io;
 use std::fmt;
 
 #[deriving(PartialEq)]
-enum TokenType { String, Identifier, OpenParen, CloseParen, Lambda, Assign }
-struct Token {
-    value: String,
-    ttype: TokenType
+pub enum TokenType { String, Identifier, OpenParen, CloseParen, Lambda, Assign, Separator }
+
+#[deriving(PartialEq)]
+pub struct Token {
+    pub value: String,
+    pub ttype: TokenType
 }
 impl fmt::Show for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Token ( value: '{}', type: {} )", self.value, match self.ttype {
+        write!(f, "(value: '{}', type: {})", self.value, match self.ttype {
             TokenType::String => "String",
             TokenType::Identifier => "Identifier",
             TokenType::OpenParen => "OpenParen",
             TokenType::CloseParen => "CloseParen",
             TokenType::Lambda => "Lambda",
+            TokenType::Separator => "Separator",
             TokenType::Assign => "Assign"
         })
     }
 }
-fn ttype_of (chr: char) -> TokenType {
+
+pub fn ttype_of (chr: char) -> TokenType {
     match chr {
         '{' => TokenType::OpenParen,
         '[' => TokenType::OpenParen,
         '(' => TokenType::OpenParen,
         '.' => TokenType::OpenParen,
+        ',' => TokenType::Separator,
         '}' => TokenType::CloseParen,
         ']' => TokenType::CloseParen,
         ')' => TokenType::CloseParen,
@@ -34,7 +38,7 @@ fn ttype_of (chr: char) -> TokenType {
     }
 }
 
-fn tokens_to_values<'a>(string: &str) -> Vec<Token> {
+pub fn tokens<'a>(string: &str) -> Vec<Token> {
     let mut res: Vec<Token> = vec![];
     let mut paren_num = 0i;
     let mut dot_num = 0i;
@@ -45,21 +49,10 @@ fn tokens_to_values<'a>(string: &str) -> Vec<Token> {
         let mut current_ident = "".to_string();
         let mut quote = 0i;
         let mut stringbq = "".to_string();
+        let mut i = 0;
 
         for chr in chars {
             let ttype = ttype_of(chr);
-            let mut chr_in_nonwords = false;
-
-            for c in ['{', '}', '(', ')', '[', ']', '.', 'λ', '"', '↦', '\n', ' '].iter() {
-                chr_in_nonwords = chr == *c;
-                if chr_in_nonwords { break; }
-            }
-
-            if chr_in_nonwords && current_ident != "".to_string() {
-                res.push(Token { value: current_ident, ttype: ttype });
-                current_ident = "".to_string();
-            }
-
             match chr {
                 '{' => paren_num += 1,
                 '[' => paren_num += 1,
@@ -70,6 +63,7 @@ fn tokens_to_values<'a>(string: &str) -> Vec<Token> {
                 ']' => paren_num -= 1,
                 ')' => paren_num -= 1,
                 'λ' => {},
+                ',' => {},
                 '↦' => {},
                 '"' => {
                     if quote == 1 {
@@ -89,26 +83,28 @@ fn tokens_to_values<'a>(string: &str) -> Vec<Token> {
                     }
                 }
             }
+            let mut chr_in_nonwords = false;
+
+            for c in ['{', '}', '(', ')', '[', ']', ',', '.', 'λ', '"', '↦', '\n', ' '].iter() {
+                chr_in_nonwords = chr == *c;
+                if chr_in_nonwords { break; }
+            }
+
+            if (chr_in_nonwords || i == line.len()-1) && current_ident != "".to_string() {
+                res.push(Token { value: current_ident, ttype: ttype });
+                current_ident = "".to_string();
+            }
+
 
             let chr_string = String::from_char(1, chr);
 
             if ttype != TokenType::Identifier {
                 res.push(Token { value: chr_string, ttype: ttype })
             }
+
+            i += 1;
         }
     }
     if dot_num != 0 || paren_num != 0 { panic!("Unmatching parens!") }
     res
-}
-
-fn main () {
-    let mut code = "".to_string();
-
-    for line in io::stdin().lock().lines() {
-        code.push_str((line.unwrap().replace("\n", " \n")).as_slice());
-    }
-    let vec = tokens_to_values(code.as_slice());
-    for tokenline in vec.iter() {
-        println!("{}", tokenline);
-    }
 }
