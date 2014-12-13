@@ -59,7 +59,13 @@ pub fn tokens<'a>(string: &str) -> Vec<Token> {
                 '(' => paren_num += 1,
                 '.' => dot_num += 1,
 
-                '}' => { paren_num -= 1; dot_num = 0 },
+                '}' => {
+                    paren_num -= 1;
+                    while dot_num != 0 {
+                        res.push(Token { value: ".".to_string(), ttype: TokenType::CloseParen });
+                        dot_num -= 1;
+                    }
+                },
                 ']' => paren_num -= 1,
                 ')' => paren_num -= 1,
                 'λ' => {},
