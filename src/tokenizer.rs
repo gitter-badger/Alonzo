@@ -1,6 +1,8 @@
 #![feature(macro_rules)]
 use std::fmt;
+
 enum TokenType { StringVal, Operator, Name, Number, Nothing }
+
 struct Token {
     token_type: TokenType,
     value: &'static str,
@@ -10,19 +12,14 @@ struct Token {
 
 impl fmt::Show for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            write!(f, "<type: {}, value: {}, at index: {}>", self.token_type, self.value, self.from);
-        }
-}
-
-impl fmt::Show for TokenType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-            match self {
-                StringVal => write!(f, "string", ),
-                Operator => write!(f, "operator", ),
-                Name => write!(f, "identifier", ),
-                Nothing => write!(f, "empty", ),
-                Number => write!(f, "intiger", )
-            }
+            write!(f, "<type: {}, value: {}, at index: {}>",
+            match self.token_type {
+                TokenType::StringVal => "string",
+                TokenType::Operator => "operator",
+                TokenType::Name => "identifier",
+                TokenType::Number => "integer",
+                TokenType::Nothing => "empty"
+            }, self.value, self.from)
         }
 }
 
@@ -42,7 +39,7 @@ fn index_of(c: char, string: &str) -> int {
     return -1
 }
 
-fn tokens(prefix: &str, suffix: &str, strr: &str) -> Vec<Token> {
+fn tokens(pre: &str, suf: &str, strr: &str) -> Vec<Token> {
 let mut successfull_get: bool = true;
     macro_rules! get(
         ($idx:expr, $thing:expr, $to:ident) => (
@@ -57,7 +54,7 @@ let mut successfull_get: bool = true;
     )
 
     let mut c: char;                      // The current character.
-    let mut from: uint;                   // The index of the start of the token.
+    let mut from = 0u;                   // The index of the start of the token.
     let mut i = 0u;                  // The index of the current character.
     let mut n: int;                      // The number value.
     let mut q: char;                      // The quote character.
@@ -67,6 +64,8 @@ let mut successfull_get: bool = true;
     for c in strr.bytes() { // Iterate  over the bytes in the &str
         string.push(c as char)  // Add that char to the vector named string
     }
+    let mut prefix = pre;
+    let mut suffix = suf;
 
 
     let mut result: Vec<Token> = vec![];            // An array to hold the results.
@@ -224,17 +223,7 @@ let mut successfull_get: bool = true;
                         'n' => (c = '\n'),
                         'r' => (c = '\r'),
                         't' => (c = '\t'),
-                        'u' => {
-                            if (i >= length) {
-                                panic!("Unterminated string");
-                            }
-                            let num: uint = from_str(string.slice(i + 1, 4)).unwrap();
-                            if (c as uint) < 0u {
-                                panic!("Unterminated string");
-                            }
-                            c = c;
-                            i += 4;
-                        }
+                        _   => (c = c)
                     }
                 }
                 strval.push(c);
