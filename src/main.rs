@@ -1,3 +1,4 @@
+#![feature(macro_rules)]
 extern crate getopts;
 use std::io::BufferedReader;
 use std::io::File;
@@ -100,11 +101,64 @@ fn tokens_chokes_on_unmatched_cbrace() {
 fn tokens_chokes_on_unmatched_ccurly() {
     tokenizer::tokens("}");
 }
+
+macro_rules! token(
+    ($str:expr, $kind:ident) => (
+        tokenizer::Token { value: $str.to_string(), ttype: tokenizer::TokenType::$kind }
+    );
+)
 #[test]
 fn tokens_recognizes_idents() {
     assert!(tokenizer::tokens("1 + 1") == vec![
-            tokenizer::Token { value: "1".to_string(), ttype: tokenizer::TokenType::Identifier },
-            tokenizer::Token { value: "+".to_string(), ttype: tokenizer::TokenType::Identifier },
-            tokenizer::Token { value: "1".to_string(), ttype: tokenizer::TokenType::Identifier }
+            token!("1", Identifier),
+            token!("+", Identifier),
+            token!("1", Identifier)
+        ])
+}
+#[test]
+fn tokens_recognizes_dots() {
+    assert!(tokenizer::tokens("{... }") == vec![
+            token!("{", OpenParen),
+            token!(".", OpenParen),
+            token!(".", OpenParen),
+            token!(".", OpenParen),
+            token!("}", CloseParen)
+        ])
+}
+#[test]
+fn tokens_recognizes_lambdas() {
+    assert!(tokenizer::tokens("{λx.λy.λz. z + y + z}") == vec![
+            token!("{", OpenParen),
+            token!("λ", Lambda),
+            token!("x", OpenParen),
+            token!(".", OpenParen),
+            token!("λ", Lambda),
+            token!("y", OpenParen),
+            token!(".", OpenParen),
+            token!("λ", Lambda),
+            token!("z", OpenParen),
+            token!(".", OpenParen),
+            token!("z", Identifier),
+            token!("+", Identifier),
+            token!("y", Identifier),
+            token!("+", Identifier),
+            token!("z", CloseParen),
+            token!("}", CloseParen)
+        ])
+}
+fn tokens_recognizes_assigns() {
+    assert!(tokenizer::tokens("main ↦ 1") == vec![
+            token!("main", Identifier),
+            token!("↦", Assign),
+            token!("1", Identifier)
+        ])
+}
+fn tokens_recognizes_multichar_identifiers() {
+    assert!(tokenizer::tokens("{... }") == vec![
+            token!("{", OpenParen),
+            token!(".", OpenParen),
+            token!(".", OpenParen),
+            token!(".", OpenParen),
+            token!("}", CloseParen),
         ])
 }
