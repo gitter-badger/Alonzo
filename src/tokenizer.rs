@@ -1,22 +1,29 @@
 #![feature(macro_rules)]
+use std::fmt;
 enum TokenType { StringVal, Operator, Name, Number, Nothing }
 struct Token {
     token_type: TokenType,
-    string_value: Option<&str>,
-    number_value: Option<int>,
+    value: &'static str,
     from: uint,
     to: uint
 }
-impl Token {
-    fn value () -> (Option<int>, Option<&str>) {
-        match number_value {
-            n @ Some(_) => (n, None),
-            None => (None, match string_value {
-                s @ Some(_) => (None, s),
-                None => (None, None)
-            })
+
+impl fmt::Show for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            write!(f, "<type: {}, value: {}, at index: {}>", self.token_type, self.value, self.from);
         }
-    }
+}
+
+impl fmt::Show for TokenType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+            match self {
+                StringVal => write!(f, "string", ),
+                Operator => write!(f, "operator", ),
+                Name => write!(f, "identifier", ),
+                Nothing => write!(f, "empty", ),
+                Number => write!(f, "intiger", )
+            }
+        }
 }
 
 fn has_char (c: Option<&char>) -> (bool, char) {
@@ -25,8 +32,14 @@ fn has_char (c: Option<&char>) -> (bool, char) {
         None    => (false, ' ')
     }
 }
-trait Val {
-    fn dummy () {}
+
+fn index_of(c: char, string: &str) -> int {
+    for (chr, i) in string.bytes().zip(range(0i, string.len() as int)) { // Iterate  over the bytes in the &str
+        if c == (chr as char) {
+            return i
+        }
+    }
+    return -1
 }
 
 fn tokens(prefix: &str, suffix: &str, strr: &str) -> Vec<Token> {
@@ -47,7 +60,7 @@ let mut successfull_get: bool = true;
     let mut from: uint;                   // The index of the start of the token.
     let mut i = 0u;                  // The index of the current character.
     let mut n: int;                      // The number value.
-    let mut q: &str;                      // The quote character.
+    let mut q: char;                      // The quote character.
     let mut strval: String;                    // The string value.
     let length = strr.len();  // Vectors have no set length!
     let mut string: Vec<char> = vec![];  // You can't access a specific index into a string slice or string, so we have to convert ours to a vector! (0_0)
@@ -57,14 +70,17 @@ let mut successfull_get: bool = true;
 
 
     let mut result: Vec<Token> = vec![];            // An array to hold the results.
-    let make = |ttype: TokenType, value| {
-        let number_value: int;
-        let string_value: &str;
-
+    let make = |ttype: TokenType, value: String| {
+        Token {
+            token_type: ttype,
+            value: value.as_slice(),
+            from: from,
+            to: i
+        }
     };
 
     // Begin tokenization. If the source string is empty, return nothing.
-    if string == "" {
+    if string.is_empty() {
         return result
     }
 
@@ -152,7 +168,7 @@ let mut successfull_get: bool = true;
                     get!(i, string, c);
                 }
                 if c < '0' || c > '9' {
-                    make(TokenType::Number, strval).error("Bad exponent");
+                    panic!("Bad exponent.");
                 }
                 while (c >= '0' && c <= '9') || i == 0 {
                     i += 1;
@@ -166,29 +182,28 @@ let mut successfull_get: bool = true;
             if c >= 'a' && c <= 'z' {
                 strval.push(c);
                 i += 1;
-                make(TokenType::Number, strval).error("Bad number");
+                panic!("Bad number");
             }
 
             // Convert the string value to a number. If it is finite, then it is a good
             // token.
 
-            n = from_str(strval.as_slice()).unwrap();
-            result.push(make(TokenType::Number, n));
+            result.push(make(TokenType::Number, strval));
 
             // strvaling
 
         } else if c == '\"' || c == '\'' {
             strval = "".to_string();
-            q = c.to_string().as_slice();
+            q = c;
             i += 1;
             loop {
                 get!(i, string, c);
                 if (c < ' ') {
-                    make(TokenType::StringVal, strval).error(if c == '\n' || c == '\r' {
+                    panic!(if c == '\n' || c == '\r' {
                                                   "Unterminated string."
                                               } else {
                                                   "Control character in string."
-                                              }, make(TokenType::Nothing, strval));
+                                              });
                 }
 
                 // Look for the closing quote.
@@ -202,7 +217,7 @@ let mut successfull_get: bool = true;
                 if c == '\\' {
                     i += 1;
                     if i >= length {
-                        make(TokenType::StringVal, strval).error("Unterminated string");
+                        panic!("Unterminated string");
                     }
                     get!(i, string, c);
                     match c {
@@ -211,13 +226,13 @@ let mut successfull_get: bool = true;
                         't' => (c = '\t'),
                         'u' => {
                             if (i >= length) {
-                                make(TokenType::StringVal, strval).error("Unterminated string");
+                                panic!("Unterminated string");
                             }
-                            c = string.slice(i + 1, 4) as int;
-                            if c < 0 {
-                                make(TokenType::StringVal, strval).error("Unterminated string");
+                            let num: uint = from_str(string.slice(i + 1, 4)).unwrap();
+                            if (c as uint) < 0u {
+                                panic!("Unterminated string");
                             }
-                            c = String::from_char(1, c as char).as_slice();
+                            c = c;
                             i += 4;
                         }
                     }
@@ -243,12 +258,12 @@ let mut successfull_get: bool = true;
 
             // combining
 
-        } else if (prefix.indexOf(c) >= 0) {
+        } else if (index_of(c, prefix) >= 0) {
             strval = String::from_char(1, c);
             i += 1;
             loop {
                 get!(i, string, c);
-                if i >= length || suffix.indexOf(c) < 0 {
+                if i >= length || index_of(c, suffix) < 0 {
                     break;
                 }
                 strval.push(c);
@@ -260,7 +275,7 @@ let mut successfull_get: bool = true;
 
         } else {
             i += 1;
-            result.push(make(TokenType::Operator, c));
+            result.push(make(TokenType::Operator, String::from_char(1, c)));
             get!(i, string, c);
         }
     }
