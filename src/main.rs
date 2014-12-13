@@ -133,28 +133,35 @@ fn tokens_recognizes_dots() {
             token!(".", OpenParen),
             token!(".", OpenParen),
             token!(".", OpenParen),
-            token!("}", CloseParen)
+
+            token!(".", CloseParen),
+            token!(".", CloseParen),
+            token!(".", CloseParen),
+            token!("}", CloseParen),
         ])
 }
 #[test]
 fn tokens_recognizes_lambdas() {
-    assert!(tokenizer::tokens("{λx.λy.λz. z + y + z}") == vec![
-            token!("{", OpenParen),
-            token!("λ", Lambda),
-            token!("x", OpenParen),
-            token!(".", OpenParen),
-            token!("λ", Lambda),
-            token!("y", OpenParen),
-            token!(".", OpenParen),
-            token!("λ", Lambda),
-            token!("z", OpenParen),
-            token!(".", OpenParen),
-            token!("z", Identifier),
-            token!("+", Identifier),
-            token!("y", Identifier),
-            token!("+", Identifier),
-            token!("z", CloseParen),
-            token!("}", CloseParen)
+    assert!(tokenizer::tokens("{λx.λy.λz. x + y + z}") == vec![
+            token!('{', OpenParen),
+            token!('λ', Lambda),
+            token!('x', OpenParen),
+            token!('.', OpenParen),
+            token!('λ', Lambda),
+            token!('y', OpenParen),
+            token!('.', OpenParen),
+            token!('λ', Lambda),
+            token!('z', OpenParen),
+            token!('.', OpenParen),
+            token!('x', Identifier),
+            token!('+', Identifier),
+            token!('y', Identifier),
+            token!('+', Identifier),
+            token!('z', CloseParen),
+            token!('.', CloseParen),
+            token!('.', CloseParen),
+            token!('.', CloseParen),
+            token!('}', CloseParen)
         ])
 }
 fn tokens_recognizes_assigns() {
@@ -164,12 +171,4 @@ fn tokens_recognizes_assigns() {
             token!("1", Identifier)
         ])
 }
-fn tokens_recognizes_multichar_identifiers() {
-    assert!(tokenizer::tokens("{... }") == vec![
-            token!("{", OpenParen),
-            token!(".", OpenParen),
-            token!(".", OpenParen),
-            token!(".", OpenParen),
-            token!("}", CloseParen),
-        ])
-}
+

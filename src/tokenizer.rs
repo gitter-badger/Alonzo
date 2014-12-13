@@ -50,6 +50,7 @@ pub fn tokens<'a>(string: &str) -> Vec<Token> {
         let mut quote = 0i;
         let mut stringbq = "".to_string();
         let mut i = 0;
+        let mut brace = false;
 
         for chr in chars {
             let ttype = ttype_of(chr);
@@ -61,10 +62,7 @@ pub fn tokens<'a>(string: &str) -> Vec<Token> {
 
                 '}' => {
                     paren_num -= 1;
-                    while dot_num != 0 {
-                        res.push(Token { value: ".".to_string(), ttype: TokenType::CloseParen });
-                        dot_num -= 1;
-                    }
+                    brace = true;
                 },
                 ']' => paren_num -= 1,
                 ')' => paren_num -= 1,
@@ -104,10 +102,16 @@ pub fn tokens<'a>(string: &str) -> Vec<Token> {
 
             let chr_string = String::from_char(1, chr);
 
-            if ttype != TokenType::Identifier {
+            if ttype != TokenType::Identifier && chr != '}' {
                 res.push(Token { value: chr_string, ttype: ttype })
+            } else if brace {
+                while dot_num != 0 {
+                    res.push(Token { value: ".".to_string(), ttype: TokenType::CloseParen });
+                    dot_num -= 1;
+                }
+                res.push(Token { value: "}".to_string(), ttype: ttype });
+                brace = false;
             }
-
             i += 1;
         }
     }
