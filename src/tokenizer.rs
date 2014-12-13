@@ -1,5 +1,4 @@
 use std::io;
-use std::str;
 use std::fmt;
 
 #[deriving(PartialEq)]
@@ -10,7 +9,7 @@ struct Token {
 }
 impl fmt::Show for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Token ( value: {}, ttype: {} )", self.value, match self.ttype {
+        write!(f, "Token ( value: '{}', type: {} )", self.value, match self.ttype {
             TokenType::String => "String",
             TokenType::Identifier => "Identifier",
             TokenType::OpenParen => "OpenParen",
@@ -48,9 +47,15 @@ fn tokens_to_values<'a>(string: &str) -> Vec<Token> {
         let mut stringbq = "".to_string();
 
         for chr in chars {
-            let mut ttype = ttype_of(chr);
+            let ttype = ttype_of(chr);
+            let mut chr_in_nonwords = false;
 
-            if chr == ' ' && current_ident != "".to_string() {
+            for c in ['{', '}', '(', ')', '[', ']', '.', 'λ', '"', '↦', '\n', ' '].iter() {
+                chr_in_nonwords = chr == *c;
+                if chr_in_nonwords { break; }
+            }
+
+            if chr_in_nonwords && current_ident != "".to_string() {
                 res.push(Token { value: current_ident, ttype: ttype });
                 current_ident = "".to_string();
             }
@@ -100,7 +105,7 @@ fn main () {
     let mut code = "".to_string();
 
     for line in io::stdin().lock().lines() {
-        code.push_str((line.unwrap()).as_slice());
+        code.push_str((line.unwrap().replace("\n", " \n")).as_slice());
     }
     let vec = tokens_to_values(code.as_slice());
     for tokenline in vec.iter() {
