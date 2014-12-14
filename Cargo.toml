@@ -1,5 +1,5 @@
 [package]
 
-name = "Alonzo"
-version = "0.0.1"
+name = "alonzo"
+version = "0.0.3"
 authors = ["christopherdumas <christopherdumas@me.com>"]
