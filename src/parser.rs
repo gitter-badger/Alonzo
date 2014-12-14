@@ -1,3 +1,4 @@
+mod tokenizer;
 /// OpArity is an enumeration that represents the four ways identifiers and operators can be used.
 ///
 ///  **Binary**: Two operands, on the left and right. This is only macros for Alnozo.
@@ -19,4 +20,7 @@ pub struct Node {
     pub value: String,
     pub first: Option<Box<Node>>,
     pub second: Option<Box<Node>>
+}
+fn parse(tokens: Vec<tokenizer::Token>) -> Node {
+    
 }
