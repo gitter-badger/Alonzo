@@ -11,7 +11,7 @@ pub enum OpArity { Binary, Literal, Unary, Function }
 ///
 /// Nodes are recursive, becouse the parse of a source file will represent a tree. In Node, if it's
 /// arity is binary, both the first and second properties will have "Some"thing in them. Otherwise,
-/// one or the other will have another node. That is why it is a boxed option node. The value field
+/// one or the other will have another node. That is why it is a option node. The value field
 /// will contain a representation of the item, as a string. Becouse numbers are not supported in
 /// Alonzo, we have avoided the problem of representing both a number and a string in a Rust
 /// struct.
@@ -22,5 +22,20 @@ pub struct Node {
     pub second: Option<Box<Node>>
 }
 fn parse(tokens: Vec<tokenizer::Token>) -> Node {
-    
+    Node {
+        arity: OpArity::Binary,
+        value: "+".to_string(),
+        first: Some(box Node {
+            arity: OpArity::Literal,
+            value: "1".to_string(),
+            first: None,
+            second: None
+        }),
+        second: Some(box Node {
+            arity: OpArity::Literal,
+            value: "1".to_string(),
+            first: None,
+            second: None
+        })
+    }
 }

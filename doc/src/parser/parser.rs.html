@@ -62,7 +62,27 @@
 <span id='20'>20</span>
 <span id='21'>21</span>
 <span id='22'>22</span>
+<span id='23'>23</span>
+<span id='24'>24</span>
+<span id='25'>25</span>
+<span id='26'>26</span>
+<span id='27'>27</span>
+<span id='28'>28</span>
+<span id='29'>29</span>
+<span id='30'>30</span>
+<span id='31'>31</span>
+<span id='32'>32</span>
+<span id='33'>33</span>
+<span id='34'>34</span>
+<span id='35'>35</span>
+<span id='36'>36</span>
+<span id='37'>37</span>
+<span id='38'>38</span>
+<span id='39'>39</span>
+<span id='40'>40</span>
+<span id='41'>41</span>
 </pre><pre class='rust '>
+<span class='kw'>mod</span> <span class='ident'>tokenizer</span>;
 <span class='doccomment'>/// OpArity is an enumeration that represents the four ways identifiers and operators can be used.</span>
 <span class='doccomment'>///</span>
 <span class='doccomment'>///  **Binary**: Two operands, on the left and right. This is only macros for Alnozo.</span>
@@ -75,7 +95,7 @@
 <span class='doccomment'>///</span>
 <span class='doccomment'>/// Nodes are recursive, becouse the parse of a source file will represent a tree. In Node, if it&#39;s</span>
 <span class='doccomment'>/// arity is binary, both the first and second properties will have &quot;Some&quot;thing in them. Otherwise,</span>
-<span class='doccomment'>/// one or the other will have another node. That is why it is a boxed option node. The value field</span>
+<span class='doccomment'>/// one or the other will have another node. That is why it is a option node. The value field</span>
 <span class='doccomment'>/// will contain a representation of the item, as a string. Becouse numbers are not supported in</span>
 <span class='doccomment'>/// Alonzo, we have avoided the problem of representing both a number and a string in a Rust</span>
 <span class='doccomment'>/// struct.</span>
@@ -84,6 +104,24 @@
     <span class='kw'>pub</span> <span class='ident'>value</span>: <span class='ident'>String</span>,
     <span class='kw'>pub</span> <span class='ident'>first</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>Node</span><span class='op'>&gt;&gt;</span>,
     <span class='kw'>pub</span> <span class='ident'>second</span>: <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Box</span><span class='op'>&lt;</span><span class='ident'>Node</span><span class='op'>&gt;&gt;</span>
+}
+<span class='kw'>fn</span> <span class='ident'>parse</span>(<span class='ident'>tokens</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>tokenizer</span>::<span class='ident'>Token</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='ident'>Node</span> {
+    <span class='ident'>Node</span> {
+        <span class='ident'>arity</span>: <span class='ident'>OpArity</span>::<span class='ident'>Binary</span>,
+        <span class='ident'>value</span>: <span class='string'>&quot;+&quot;</span>.<span class='ident'>to_string</span>(),
+        <span class='ident'>first</span>: <span class='prelude-val'>Some</span>(<span class='kw'>box</span> <span class='ident'>Node</span> {
+            <span class='ident'>arity</span>: <span class='ident'>OpArity</span>::<span class='ident'>Literal</span>,
+            <span class='ident'>value</span>: <span class='string'>&quot;1&quot;</span>.<span class='ident'>to_string</span>(),
+            <span class='ident'>first</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>second</span>: <span class='prelude-val'>None</span>
+        }),
+        <span class='ident'>second</span>: <span class='prelude-val'>Some</span>(<span class='kw'>box</span> <span class='ident'>Node</span> {
+            <span class='ident'>arity</span>: <span class='ident'>OpArity</span>::<span class='ident'>Literal</span>,
+            <span class='ident'>value</span>: <span class='string'>&quot;1&quot;</span>.<span class='ident'>to_string</span>(),
+            <span class='ident'>first</span>: <span class='prelude-val'>None</span>,
+            <span class='ident'>second</span>: <span class='prelude-val'>None</span>
+        })
+    }
 }
 </pre>
 </section>
